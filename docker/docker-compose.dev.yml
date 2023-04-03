@@ -1,0 +1,46 @@
+name: no-framework-php
+services:
+  backend:
+    container_name: php
+    build:
+      context: ../
+      dockerfile: docker/dockerfile.php.dev
+    volumes:
+      - ../php:/app
+    ports:
+      - 8888:8888
+    networks:
+      - inner-network
+    entrypoint: ["php", "-S", "0.0.0.0:8888", "app.php"]
+    working_dir: /app
+    environment:
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_NAME=database
+      - DB_USER=user
+      - DB_PASSWORD=pass
+
+  database:
+    container_name: postgresql
+    image: postgres:15.2-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=database
+    ports:
+      - 5432:5432
+    networks:
+      - inner-network
+
+  db-manager:
+    container_name: db-admin
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - inner-network
+
+networks:
+  inner-network:
